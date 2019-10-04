@@ -97,7 +97,7 @@ class PostcodesIoApiClient {
    * @return bool|array
    *   Either an array or false.
    */
-  public function request($op, array $args, $cacheable = TRUE) {
+  private function request($op, array $args, $cacheable = TRUE) {
     $cid = $this->buildCacheId($op, $args);
 
     // Check cache.
