@@ -68,6 +68,15 @@ operations:
     location: "uri"
     description: "The postcode to validate."
     required: true
+ nearest:
+  uri: "postcodes/{postcode}/nearest"
+  httpMethod: "GET"
+  responseModel: "getResponse"
+  parameters:
+   postcode:
+    location: "uri"
+    description: "Nearest postcodes for postcode."
+    required: true
  autocomplete:
   uri: "postcodes/{postcode}/autocomplete"
   httpMethod: "GET"

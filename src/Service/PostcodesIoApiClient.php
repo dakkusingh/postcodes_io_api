@@ -312,4 +312,110 @@ class PostcodesIoApiClient {
     return $this->request('bulkReverseGeocode', $args, $cacheable);
   }
 
+  /**
+   * Postcode Query.
+   *
+   * Submit a postcode query and receive a complete list of postcode
+   * matches and all associated postcode data.
+   *
+   * @param array $args
+   *   Args to request.
+   * @param bool $cacheable
+   *   Is it cachable.
+   *
+   * @return array|bool
+   *   Result or null
+   */
+  public function matching(array $args, $cacheable = TRUE) {
+    return $this->request('matching', $args, $cacheable);
+  }
+
+  /**
+   * Postcode Validation.
+   *
+   * Method to validate a postcode.
+   * Returns true or false (meaning valid or invalid respectively).
+   *
+   * @param array $args
+   *   Args to request.
+   * @param bool $cacheable
+   *   Is it cachable.
+   *
+   * @return array|bool
+   *   Result or null
+   */
+  public function validate(array $args, $cacheable = TRUE) {
+    return $this->request('validate', $args, $cacheable);
+  }
+
+  /**
+   * Nearest Postcode.
+   *
+   * Returns nearest postcodes for a given postcode.
+   *
+   * @param array $args
+   *   Args to request.
+   * @param bool $cacheable
+   *   Is it cachable.
+   *
+   * @return array|bool
+   *   Result or null
+   */
+  public function nearest(array $args, $cacheable = TRUE) {
+    return $this->request('nearest', $args, $cacheable);
+  }
+
+  /**
+   * Postcode Autocomplete.
+   *
+   * Convenience method to return an list of matching postcodes.
+   *
+   * @param array $args
+   *   Args to request.
+   * @param bool $cacheable
+   *   Is it cachable.
+   *
+   * @return array|bool
+   *   Result or null
+   */
+  public function autocomplete(array $args, $cacheable = TRUE) {
+    return $this->request('autocomplete', $args, $cacheable);
+  }
+
+  /**
+   * Random Postcode.
+   *
+   * Returns a random postcode and all available data for that postcode.
+   *
+   * @param array $args
+   *   Args to request.
+   * @param bool $cacheable
+   *   Is it cachable.
+   *
+   * @return array|bool
+   *   Result or null
+   */
+  public function random(array $args, $cacheable = TRUE) {
+    return $this->request('random', $args, $cacheable);
+  }
+
+  /**
+   * Outward Code Lookup.
+   *
+   * Geolocation data for the centroid of the outward code specified.
+   * The outward code represents the first half of any postcode
+   * (separated by a space).
+   *
+   * @param array $args
+   *   Args to request.
+   * @param bool $cacheable
+   *   Is it cachable.
+   *
+   * @return array|bool
+   *   Result or null
+   */
+  public function outwardCodeLookup(array $args, $cacheable = TRUE) {
+    return $this->request('outwardCodeLookup', $args, $cacheable);
+  }
+
 }
