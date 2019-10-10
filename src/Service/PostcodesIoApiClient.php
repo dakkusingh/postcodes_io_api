@@ -4,11 +4,13 @@ namespace Drupal\postcodes_io_api\Service;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Http\ClientFactory;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Command\Guzzle\Description;
 use GuzzleHttp\Command\Guzzle\GuzzleClient;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class Postcodes IO API Client.
@@ -16,13 +18,6 @@ use GuzzleHttp\Command\Guzzle\GuzzleClient;
  * @package Drupal\postcodes_io_api\Service
  */
 class PostcodesIoApiClient {
-
-  /**
-   * Description.
-   *
-   * @var \Drupal\Core\Config\Config
-   */
-  protected $description;
 
   /**
    * Settings.
@@ -60,6 +55,13 @@ class PostcodesIoApiClient {
   protected $guzzleClient;
 
   /**
+   * Module Handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  private $moduleHandler;
+
+  /**
    * Client constructor.
    *
    * @param \Drupal\Core\Http\ClientFactory $httpClientFactory
@@ -70,17 +72,20 @@ class PostcodesIoApiClient {
    *   Cache backend.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
    *   LoggerChannelFactory.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   * Module Handler.
    */
   public function __construct(ClientFactory $httpClientFactory,
                               ConfigFactory $config,
                               CacheBackendInterface $cacheBackend,
-                              LoggerChannelFactoryInterface $loggerFactory) {
+                              LoggerChannelFactoryInterface $loggerFactory,
+                              ModuleHandlerInterface $moduleHandler) {
     $this->settings = $config->get('postcodes_io_api.settings');
-    $this->description = $config->get('postcodes_io_api.description');
 
     $this->cacheBackend = $cacheBackend;
     $this->loggerFactory = $loggerFactory;
     $this->httpClientFactory = $httpClientFactory;
+    $this->moduleHandler = $moduleHandler;
     $this->guzzleClient = $this->getGuzzleClient();
   }
 
@@ -223,20 +228,26 @@ class PostcodesIoApiClient {
    *   GuzzleClient.
    */
   private function getGuzzleClient() {
-    $description = $this->description->get();
-    $settings = $this->settings->get();
-
-    // Override the base url from the one set in settings.
-    $description['baseUrl'] = $settings['base_url'];
-
-    // Unset Drupal yaml stuff.
-    unset($description['_core']);
-
     // Get a Guzzle Description from YAML.
-    $apiDescription = new Description($description);
+    $apiDescription = $this->getDescription();
 
     // We will use guzzle services client from here on.
     return new GuzzleClient($this->httpClientFactory->fromOptions(), $apiDescription);
+  }
+
+  private function getDescription() {
+    // Load descriptions.
+    $modulePath = $this->moduleHandler->getModule('postcodes_io_api')->getPath();
+    $filePath = $modulePath . '/src/api/postcodes_io_api.description.yml';
+    $fileContents = file_get_contents($filePath);
+    $description = Yaml::parse($fileContents);
+
+    // Override the base url from the one set in settings.
+    $settings = $this->settings->get();
+    $description['baseUrl'] = $settings['base_url'];
+
+    $apiDescription = new Description($description);
+    return $apiDescription;
   }
 
   /**

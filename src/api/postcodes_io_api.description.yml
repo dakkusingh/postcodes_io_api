@@ -1,4 +1,4 @@
-baseUrl: ""
+baseUrl: "http://api.postcodes.io"
 operations:
  lookup:
   uri: "postcodes/{postcode}"
