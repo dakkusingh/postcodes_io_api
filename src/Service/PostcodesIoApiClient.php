@@ -73,7 +73,7 @@ class PostcodesIoApiClient {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
    *   LoggerChannelFactory.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
-   * Module Handler.
+   *   Module Handler.
    */
   public function __construct(ClientFactory $httpClientFactory,
                               ConfigFactory $config,
@@ -138,16 +138,10 @@ class PostcodesIoApiClient {
    *   Return string.
    */
   private function buildCacheId($op, array $args) {
-    $argHash = '';
-
     // Sort the args for consistency.
     ksort($args);
 
-    foreach ($args as $k => $v) {
-      $argHash .= $k . $v;
-    }
-
-    return 'postcodes_io_api:' . md5($op . $argHash);
+    return 'postcodes_io_api:' . md5($op . serialize($args));
   }
 
   /**
@@ -167,6 +161,7 @@ class PostcodesIoApiClient {
       return $response['result'];
     }
     catch (GuzzleException $e) {
+      ksm($e);
       $this->loggerFactory->get('postcodes_io_api')->error("@message", ['@message' => $e->getMessage()]);
       return NULL;
     }
@@ -180,7 +175,7 @@ class PostcodesIoApiClient {
    * @param bool $cacheable
    *   Is it cacheable?
    *
-   * @return array|null
+   * @return array|bool|null
    *   Result or null
    */
   private function cacheGet($cid, $cacheable) {
@@ -206,12 +201,12 @@ class PostcodesIoApiClient {
    *
    * @param string $cid
    *   Cache ID.
-   * @param array $response
+   * @param array|bool $response
    *   Response.
    * @param bool $cacheable
    *   Is it cacheable?
    */
-  private function cacheSet($cid, array $response, $cacheable) {
+  private function cacheSet($cid, $response, $cacheable) {
     if ($cacheable == TRUE) {
       // Cache the response if we got one.
       $apiCacheMaximumAge = $this->settings->get('api_cache_maximum_age');
@@ -235,6 +230,9 @@ class PostcodesIoApiClient {
     return new GuzzleClient($this->httpClientFactory->fromOptions(), $apiDescription);
   }
 
+  /**
+   * Get guzzle description.
+   */
   private function getDescription() {
     // Load descriptions.
     $modulePath = $this->moduleHandler->getModule('postcodes_io_api')->getPath();
@@ -360,23 +358,6 @@ class PostcodesIoApiClient {
   }
 
   /**
-   * Nearest Postcode.
-   *
-   * Returns nearest postcodes for a given postcode.
-   *
-   * @param array $args
-   *   Args to request.
-   * @param bool $cacheable
-   *   Is it cachable.
-   *
-   * @return array|bool
-   *   Result or null
-   */
-  public function nearest(array $args, $cacheable = TRUE) {
-    return $this->request('nearest', $args, $cacheable);
-  }
-
-  /**
    * Postcode Autocomplete.
    *
    * Convenience method to return an list of matching postcodes.
@@ -398,16 +379,14 @@ class PostcodesIoApiClient {
    *
    * Returns a random postcode and all available data for that postcode.
    *
-   * @param array $args
-   *   Args to request.
    * @param bool $cacheable
    *   Is it cachable.
    *
    * @return array|bool
    *   Result or null
    */
-  public function random(array $args, $cacheable = TRUE) {
-    return $this->request('random', $args, $cacheable);
+  public function random($cacheable = TRUE) {
+    return $this->request('random', [], $cacheable);
   }
 
   /**
