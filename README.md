@@ -10,7 +10,8 @@ Postcodes.io is aimed at developers who want a resource to
 lookup and (reverse) geocode UK Postcodes.
 
 ## Features
-- Postcode lookup, resolve administrative and location data for postcodes and outward codes
+- Postcode lookup, resolve administrative and location data for 
+postcodes and outward codes
 - Postcode search & autocomplete
 - Reverse geocode postcodes
 - Nearest postcode search
@@ -81,14 +82,6 @@ Example:
 $result = $postcodesIoApiClient->validate($params, TRUE);
 ```
 
-#### Nearest Postcode
-Returns nearest postcodes for a given postcode.
-
-Example:
-```
-$result = $postcodesIoApiClient->nearest($params, TRUE);
-```
-
 #### Postcode Autocomplete
 Convenience method to return an list of matching postcodes.
 
@@ -102,7 +95,7 @@ Returns a random postcode and all available data for that postcode.
 
 Example:
 ```
-$result = $postcodesIoApiClient->random($params, TRUE);
+$result = $postcodesIoApiClient->random();
 ```
 
 #### Outward Code Lookup
@@ -120,3 +113,13 @@ $result = $postcodesIoApiClient->outwardCodeLookup($params, TRUE);
 - [Public API Service Status](https://status.ideal-postcodes.co.uk)
 - [Self Hosting](https://postcodes.io/docs#Install-notes)
 - [Explore](https://postcodes.io/explore)
+
+## Running tests in Docker
+```
+sudo -u www-data php ./core/scripts/run-tests.sh \
+  --sqlite /tmp/drupal/test.sqlite \
+  --url http://localhost \
+  --module postcodes_io_api \
+  --verbose \
+  --color
+```
